@@ -27,7 +27,7 @@ export const signup = (user) => {
                     lastName: user.lastName,
                     uid: data.user.uid,
                     createdAt: new Date(),
-                
+                    isOnline: true
                 })
                 .then(() => {
                     //succeful
@@ -126,6 +126,40 @@ export const isLoggedInUser = () => {
             });
         }
 
+
+    }
+}
+
+
+export const logout = (uid) => {
+    return async dispatch => {
+        dispatch({ type: `${authConstanst.USER_LOGOUT}_REQUEST` });
+        //Now lets logout user
+
+        const db = firestore();
+        db.collection('users')
+        .doc(uid)
+        .update({
+            isOnline: false
+        })
+        .then(() => {
+
+            auth()
+            .signOut()
+            .then(() => {
+                //successfully
+                localStorage.clear();
+                dispatch({type: `${authConstanst.USER_LOGOUT}_SUCCESS`});
+            })
+            .catch(error => {
+                console.log(error);
+                dispatch({ type: `${authConstanst.USER_LOGOUT}_FAILURE`, payload: { error } })
+            })
+
+        })
+        .catch(error => {
+            console.log(error);
+        })
 
     }
 }
